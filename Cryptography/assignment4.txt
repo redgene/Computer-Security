@@ -1,0 +1,250 @@
+import sys
+import urllib.request
+import base64
+import binascii
+from pymd5 import md5, padding
+
+from problem1 import ctxts_hex, ctxts_bin
+from problem2 import KEY, get_user_url, query_url
+from problem3 import N, e, k, buggy_verify
+
+import decimal
+from decimal import Decimal
+from Crypto.Hash import SHA256
+import math 
+
+from collections import defaultdict
+
+
+
+################################################################################
+# 
+# Starter file for UChicago CMSC 23200 / 33250 Assignment 4, Winter 2023
+#
+################################################################################
+
+
+################################################################################
+# PROBLEM 1 SOLUTION
+################################################################################
+
+def get_space_positions(dic):
+    positions = []
+    for key in dic:
+        # Surely a space!
+        if dic[key] == 3:
+            positions += [key]
+    return positions
+
+def helper_space_finder(ctxts_bin):
+    
+    # Dictionaries for storing space counts
+    set_b0 = defaultdict(int)
+    set_b1 = defaultdict(int)
+    set_b2 = defaultdict(int)
+    set_b3 = defaultdict(int)
+    
+    for i, bin1 in enumerate(ctxts_bin):
+        for j, bin2 in enumerate(ctxts_bin):
+
+            # Perform XOR only if these are different / havent performed a XOR before
+            if i != j and j > i:
+
+                print(i,j)
+                # Take the minimum of two lengths
+                len_ = min(len(bin1), len(bin2))
+
+                # Take element wise XOR & check if there is a space
+                for k in range(len_):
+                    res = bin1[k] ^ bin2[k]
+
+                    if res >= 65 or res == 0:
+                        # print(f"Space found at position {k} while XORing binaries {i} and {j}")
+                        if i == 0:
+                            set_b0[k] += 1
+
+                        if i == 1 or j == 1:
+                            set_b1[k] += 1
+
+                        if i == 2 or j == 2:
+                            set_b2[k] += 1
+
+                        if i == 3 or j == 3:
+                            set_b3[k] += 1
+
+    # Now we know where _ space occurs in each of the texts
+    # Example: if set_b0[5] is 3, then at 6th place, there is a space in message 1
+    # Conclusions
+    #  1. All the letters at 6th place for messages 2,3,4 can be recovered by XORing with a space at 6th place
+    #  2. Key at 6th place can be recovered (not the target tho)
+
+    p0 = get_space_positions(set_b0)
+    p1 = get_space_positions(set_b1)
+    p2 = get_space_positions(set_b2)
+    p3 = get_space_positions(set_b3)
+    
+    # Messages to be recovered
+    m0 = ['?' for i in range (len(ctxts_bin[0]))]
+    m1 = ['?' for i in range (len(ctxts_bin[1]))]
+    m2 = ['?' for i in range (len(ctxts_bin[2]))]
+    m3 = ['?' for i in range (len(ctxts_bin[3]))]
+    
+    # Nested function to add characters to positions where spaces were found
+    def add_characters_to_spaces(cipher_bin, space_positions):
+        for pos in space_positions:
+            if pos < len(m0):
+                m0[pos] = chr(cipher_bin[pos] ^ ctxts_bin[0][pos] ^ ord(' '))
+
+            if pos < len(m1):
+                m1[pos] = chr(cipher_bin[pos] ^ ctxts_bin[1][pos] ^ ord(' '))
+
+            if pos < len(m2):
+                m2[pos] = chr(cipher_bin[pos] ^ ctxts_bin[2][pos] ^ ord(' '))
+
+            if pos < len(m3):
+                m3[pos] = chr(cipher_bin[pos] ^ ctxts_bin[3][pos] ^ ord(' '))
+                
+    add_characters_to_spaces(ctxts_bin[0], p0)
+    add_characters_to_spaces(ctxts_bin[1], p1)
+    add_characters_to_spaces(ctxts_bin[2], p2)
+    add_characters_to_spaces(ctxts_bin[3], p3)
+    
+    # Now read m0,m1... and fill in the letters to those words that seem doable
+    '''
+        this letter filling part was done manually on a notebook
+        once, this is done, use the crib dragging to use the words found above 
+        to find the corresponding words 
+        helper_crib_drag([m0, m1, m2, m3])
+    '''
+    
+def helper_crib_drag(msgs):
+    m0,m1,m2,m3 = msgs[0], msgs[1], msgs[2], msgs[3]
+    
+    # Function for XORing two messages (modified version from stackoverflow, because of its speed)
+    def xor_them(var1, var2, byteorder = sys.byteorder):
+        var1, var2 = var1[:len(var2)], var2[:len(var1)]
+
+        int_var1 = int.from_bytes(var1, byteorder)
+        int_var2 = int.from_bytes(var2, byteorder)
+
+        int_enc = int_var1 ^ int_var2
+
+        return int_enc.to_bytes(min(len(var1), len(var2)), byteorder)
+    
+    # Function for performing crib drag, given a sentence and a word
+    def crib_drag(sentence, word):
+        x = []
+        for i in range(len(sentence)-len(word)+1):
+            result = xor_them(sentence[i:i+len(word)], word)
+            try:
+                result_decoded = result.decode('utf-8')
+                x.append(result_decoded)
+
+                print(f"At position {i}, found {result_decoded}")
+                
+            except Exception as e:
+                print("Error while crib dragging " + str(e))
+                x.append('?'*len(word))
+        
+        # Use this to look for words here
+        return ' '.join(x)
+    
+    # Call crib drag here for words found after doing space finding + 
+    # Example call give below:
+    # print(crib_drag(xor_them(ctxts_bin[0], ctxts_bin[1]), b"obsolescence"))
+    # And find that ---> At position 88, found unnecessary
+    # Which is a word in the second sentence, and so on.
+    
+    # Ways of automating this
+    # - Use NLTK corpus for finding words
+    # - Keep adding words found to a set / list and keep going until found all
+    return      
+
+# Submission function for grading
+def problem1():
+    # Fill in this array with the four plaintexts in order
+    ptxts = []
+
+    ptxts.append("Libraries pulled through, of course, but then the rise of the internet renewed fears of obsolescence. So far, the internet has not killed libraries either. But the percentage of higher-education budgets dedicated to libraries has been dwindling since the 1980s, and at many institutions there’s been a corresponding drop in reported spending on print materials while that on electronic resources has grown.")
+    ptxts.append("The game is most gratifying when players devise the canniest, most unexpected, and most unnecessary ways to trick the poor villagers whose unfortunate assignment it is to share a world with this wicked waterfowl. Sneaking and cheating are game-play elements that get rewarded being a bad goose is what it must feel like to be a card sharp, or a pool shark, or a Patriots fan.")
+    ptxts.append("If we were all given by magic the power to read each other’s thoughts, I suppose the first effect would be almost all friendships would be dissolved; the second effect, however, might be excellent, for a world without any friends would be felt to be intolerable, and we should learn to like each other without needing a veil of illusion to conceal from ourselves that we did not think each other absolutely perfect.")
+    ptxts.append("On the surface, Bader’s art may appear to be a kind of elaborate prank. He injected a piece of lasagna with heroin for a 2012 work titled “lasagna on heroin,” and he drove his aunt’s car from her house outside Miami and parked it in front of the Bass Museum of Art for a 2011 piece called “my aunt’s car.” There is a bit of “Well, what happens if … ?” to Bader’s work.")
+
+    # No further implementation required
+    return ptxts
+
+################################################################################
+# PROBLEM 2 SOLUTION
+################################################################################
+
+def problem2(cnet = b'utkarsht'):
+    
+    # hash function to be updated later
+    h = md5()
+    
+    if type(cnet) != bytes:
+        cnet = cnet.encode('UTF-8')
+
+    url_for_cnet = get_user_url(cnet)
+    
+    # remove until this part
+    params_strs = url_for_cnet.lstrip(b'http://www.flickur.com/?')
+
+    # make a list of lists
+    ps = list(map(lambda x: x.split(b'='), params_strs.split(b'&')))
+
+    # make a dictionary mapping api_tag, uname, role to their respective values
+    params = {p[0]: p[1] for p in ps if len(p) >= 2}
+
+    # get the api tag created by the get_user_url function [KEY + b'uname=' + cnet + b'&role=user']
+    api_tag = params[b'api_tag']
+
+    h = md5(state = bytes.fromhex(str(api_tag, 'UTF-8')), count = 512) 
+    h.update(b'&role=admin')
+
+    digest = h.hexdigest().encode('UTF-8')
+    
+    for i in range(5000000):
+        crack = b'http://www.flickur.com/?api_tag=' + digest + b'&uname=' + cnet + b'&role=user' + padding(i) + b'&role=admin'
+        if query_url(crack) == b"Admin Login Success":
+            print("Got admin access")
+            return crack
+
+################################################################################
+# PROBLEM 3 SOLUTION
+################################################################################
+
+def problem3(msg = b'myRandomString'):
+    # set decimal precision
+    decimal.getcontext().prec = 2000
+    msg_full_len = 256
+
+    # calculate the digest for given message
+    sha_digest = SHA256.new(msg).digest()
+
+    # supposed to be 00 01 FF 00
+    intial_part = b'\x00\x01\xff\x00'
+
+    # construct the entire message
+    msg_full = intial_part + sha_digest
+    for i in range(msg_full_len - 4 - len(sha_digest)):
+        msg_full += b'\x00'
+
+    # cube root calculation
+    # using decimal notation (as explained on gradescope)
+    d = decimal.Decimal(int(msg_full.hex(), 16))
+    signature = d ** (decimal.Decimal('1') / 3) 
+
+    # since the ans will be in a precision of 2000 as noted above
+    signature = math.ceil(signature) 
+    ret = buggy_verify(k, N, e, msg, signature)
+    
+    print(ret)
+    return signature
+
+
+# Code below here will be run if you execute 'python4 assignment4.py'.
+# This code here won't be graded, and your code above shouldn't depend on it.
+if __name__ == "__main__":
+    # optional driver code here
+    exit()

